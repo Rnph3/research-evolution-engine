@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Research Evolution Engine — 공개 연구 아키텍처를 조합한 검증 중심 자율 연구 엔진의 설계와 실행 상태">
+  <title>Research Evolution Engine | Research Atlas v0.1</title>
+  <style>
+    :root { --bg:#07121d; --bg2:#0a1825; --card:#0f2230; --card2:#112734; --edge:#294152; --txt:#edf7f7; --muted:#a3bdc8; --faint:#79939f; --teal:#54dfc0; --teal2:#0b836f; --amber:#eec284; --orange:#df987a; --sky:#8bc6f3; --sh:0 20px 64px rgba(0,0,0,.24); }
+    html[data-theme="light"] { --bg:#f4f9fa; --bg2:#e8f1f4; --card:#ffffff; --card2:#edf6f5; --edge:#cbdce2; --txt:#142a37; --muted:#4b6470; --faint:#607d88; --teal:#087c6a; --teal2:#087c6a; --amber:#96601e; --orange:#a95340; --sky:#225ca7; --sh:0 16px 40px rgba(26,71,84,.07); }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; } body { margin:0; background:var(--bg); color:var(--txt); font:15px/1.7 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; letter-spacing:-.012em; overflow-wrap:anywhere; } a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; } button { font:inherit; cursor:pointer; } button:focus-visible,a:focus-visible { outline:2px solid var(--teal); outline-offset:3px; } ::selection { background:#2a847d; color:#fff; }
+    .frame { min-height:100vh; display:grid; grid-template-columns:238px minmax(0,1fr); } .sidebar { position:sticky; top:0; height:100vh; border-right:1px solid var(--edge); background:var(--bg2); padding:27px 18px; display:flex; flex-direction:column; gap:28px; } .brand { display:flex; gap:13px; align-items:center; padding:5px 12px; }
+    .brandmark { display:grid; place-items:center; width:43px; height:43px; border:1px solid rgba(84,223,192,.5); border-radius:13px; background:linear-gradient(135deg,rgba(84,223,192,.17),rgba(139,198,243,.1)); font-weight:800; font-size:15px; color:var(--teal); letter-spacing:-.05em; }
+    .brand strong { display:block; letter-spacing:.02em; font-size:12px; line-height:1.4; } .brand small { display:block; color:var(--faint); font-size:11px; letter-spacing:.06em; margin-top:4px; }
+    .side-label { color:var(--faint); text-transform:uppercase; font-size:10px; letter-spacing:.15em; font-weight:800; padding:0 12px; margin-bottom:8px; }
+    .menu { display:grid; gap:3px; } .menu a { display:flex; align-items:center; gap:13px; color:var(--muted); padding:9px 12px; border-radius:9px; font-size:13px; } .menu a b { font-size:10px; color:var(--faint); font-weight:700; width:20px; } .menu a:hover, .menu a.active { background:var(--card); color:var(--txt); text-decoration:none; } .menu a.active { border-left:3px solid var(--teal); } .menu a.active b { color:var(--teal); }
+    .sidefoot { margin-top:auto; border-top:1px solid var(--edge); padding:15px 12px 0; color:var(--faint); font-size:11px; } .sidefoot a { display:block; margin:5px 0; font-size:12px; }
+    .main { min-width:0; } .topbar { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--edge); background:color-mix(in srgb,var(--bg) 88%,transparent); padding:15px clamp(24px,4vw,64px); gap:18px; }
+    .crumb { color:var(--faint); font-size:12px; } .crumb strong { color:var(--txt); font-weight:650; } .actions { display:flex; gap:9px; align-items:center; } .ghost { color:var(--muted); border:1px solid var(--edge); background:var(--card); border-radius:8px; padding:7px 11px; font-size:12px; } .ghost:hover { color:var(--txt); border-color:var(--teal); }
+    .content { max-width:1400px; padding:0 clamp(24px,4vw,64px) 90px; margin:auto; }
+    .hero { position:relative; overflow:hidden; border-bottom:1px solid var(--edge); padding:55px 0 40px; } .hero::after { content:""; position:absolute; inset:-100px -25px auto auto; width:470px; height:430px; opacity:.27; background:radial-gradient(ellipse at center,rgba(48,188,163,.45),transparent 65%); pointer-events:none; }
+    .eyebrow { display:flex; align-items:center; flex-wrap:wrap; gap:10px; color:var(--teal); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.18em; } .eyebrow:before { content:""; background:var(--teal); height:5px; width:5px; border-radius:50%; } h1 { font-size:clamp(38px,5.2vw,72px); line-height:1.08; letter-spacing:-.048em; max-width:950px; margin:17px 0; font-weight:780; } h1 em { color:var(--teal); font-style:normal; } .lead { max-width:800px; font-size:16px; color:var(--muted); line-height:1.85; margin:0 0 24px; }
+    .tag-row { display:flex; flex-wrap:wrap; gap:9px; } .tag { border-radius:100px; font-size:11px; font-weight:700; padding:6px 11px; letter-spacing:.025em; border:1px solid var(--edge); color:var(--muted); background:var(--card); } .tag.warn { color:var(--amber); border-color:color-mix(in srgb,var(--amber) 45%,var(--edge)); } .tag.good { color:var(--teal); border-color:color-mix(in srgb,var(--teal) 45%,var(--edge)); }
+    .kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:28px; } .kpi { border:1px solid var(--edge); background:var(--card); border-radius:13px; padding:20px 19px; min-height:118px; } .kpi strong { display:block; color:var(--txt); font-size:32px; letter-spacing:-.045em; line-height:1.15; font-weight:730; } .kpi span { display:block; color:var(--muted); font-size:12px; margin-top:10px; } .kpi:last-child strong { color:var(--amber); }
+    section { padding-top:56px; scroll-margin-top:12px; } .heading { display:flex; align-items:end; justify-content:space-between; gap:15px; margin-bottom:19px; } .heading h2 { font-size:clamp(23px,2.5vw,32px); margin:0; letter-spacing:-.03em; line-height:1.25; } .heading .serial { color:var(--teal); font-size:11px; font-weight:750; letter-spacing:.12em; display:block; margin-bottom:9px; } .sub { color:var(--muted); max-width:770px; margin:0 0 19px; }
+    .panel { background:var(--card); border:1px solid var(--edge); border-radius:14px; padding:23px; box-shadow:var(--sh); } .panel.plain { box-shadow:none; } .panel h3 { margin:0 0 10px; font-size:16px; line-height:1.45; } .panel p { color:var(--muted); margin:0; font-size:13px; } .panel strong { color:var(--txt); }
+    .twocol { display:grid; grid-template-columns:1.3fr 1fr; gap:15px; } .thrcol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; } .fourcol { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; } .cutline { height:1px; background:var(--edge); margin:17px 0; }
+    .bulletless { display:grid; gap:11px; margin:0; padding:0; list-style:none; } .bulletless li { padding-left:17px; position:relative; color:var(--muted); font-size:13px; } .bulletless li::before { content:""; background:var(--teal); width:5px; height:5px; border-radius:50%; position:absolute; left:0; top:10px; } .callout { border-left:3px solid var(--teal); background:var(--card2); border-radius:0 10px 10px 0; padding:14px 18px; color:var(--txt); font-size:13px; margin-top:17px; }
+    .miniheading { color:var(--faint); font-weight:780; font-size:10px; text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px; }
+    .origin-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; } .origin { background:var(--card); border:1px solid var(--edge); border-radius:13px; padding:20px; } .origin .no { display:inline-flex; align-items:center; justify-content:center; background:var(--card2); border-radius:8px; font-size:11px; color:var(--teal); height:30px; min-width:30px; margin-bottom:13px; font-weight:800; } .origin h3 { margin:0 0 8px; font-size:16px; } .origin p { margin:0 0 13px; font-size:12px; color:var(--muted); min-height:62px; } .origin .method { color:var(--sky); font-size:11px; font-weight:700; } .origin a { display:inline-block; margin-top:11px; font-size:11px; }
+    .pipeline { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:20px 0 13px; } .pipe { border:1px solid var(--edge); background:var(--card); border-radius:11px; padding:16px 10px; text-align:center; min-height:126px; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:.2s; } .pipe:hover,.pipe.selected { border-color:var(--teal); background:var(--card2); } .pipe .num { color:var(--faint); font-size:10px; font-weight:750; margin-bottom:7px; } .pipe strong { font-size:13px; letter-spacing:-.025em; } .pipe span { color:var(--muted); font-size:11px; margin-top:5px; line-height:1.5; } .pipeline .pipe { position:relative; cursor:pointer; } .pipe:focus-visible { outline:2px solid var(--teal); outline-offset:2px; } .pipe:not(:last-child)::after { content:"›"; position:absolute; right:-10px; top:44%; font-size:21px; color:var(--teal); z-index:1; pointer-events:none; }
+    .detail { padding:20px 22px; background:var(--card2); border:1px solid var(--edge); border-radius:12px; display:grid; grid-template-columns:1fr 1.3fr; gap:24px; min-height:130px; } .detail h3 { margin:0 0 6px; font-size:17px; } .detail .hint { color:var(--teal); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:8px; } .detail p,.detail li { color:var(--muted); font-size:13px; } .detail p { margin:0; } .detail ul { padding-left:16px; margin:0; }
+    .flow-legend { display:flex; justify-content:space-between; flex-wrap:wrap; gap:9px; color:var(--faint); font-size:11px; }
+    .table-wrap { width:100%; overflow-x:auto; border:1px solid var(--edge); background:var(--card); border-radius:13px; } table { border-collapse:collapse; width:100%; min-width:650px; } th { color:var(--faint); text-transform:uppercase; letter-spacing:.07em; font-size:10px; font-weight:780; text-align:left; background:var(--card2); } th,td { padding:13px 17px; border-bottom:1px solid var(--edge); vertical-align:top; } tr:last-child td { border-bottom:0; } td { color:var(--muted); font-size:12px; } td strong { color:var(--txt); } .badge { display:inline-block; font-size:10px; font-weight:780; padding:3px 9px; border:1px solid var(--edge); border-radius:50px; white-space:nowrap; } .badge.draft { color:var(--amber); } .badge.zero { color:var(--orange); } .badge.plan { color:var(--sky); }
+    .gates { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:15px; } .gate { border:1px solid var(--edge); border-radius:10px; background:var(--card2); min-height:100px; padding:14px 10px; } .gate span { display:block; color:var(--teal); font-size:11px; font-weight:800; margin-bottom:6px; } .gate strong { font-size:12px; display:block; line-height:1.5; } .gate small { display:block; font-size:10px; color:var(--faint); margin-top:6px; }
+    .hypo { margin-top:13px; display:grid; grid-template-columns:42px 1fr; gap:13px; border-top:1px solid var(--edge); padding-top:13px; } .hypo .label { display:grid; place-items:center; border-radius:9px; background:var(--card2); height:39px; color:var(--teal); font-size:11px; font-weight:800; } .hypo h4 { font-size:13px; margin:0 0 4px; } .hypo p { font-size:12px; }
+    .roadmap { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; } .phase { padding:18px 17px; border:1px solid var(--edge); background:var(--card); border-radius:12px; } .phase .period { color:var(--teal); font-size:11px; font-weight:780; letter-spacing:.07em; } .phase h3 { font-size:15px; margin:9px 0; } .phase p { color:var(--muted); font-size:12px; margin:0; } .phase:first-child { border-top:3px solid var(--teal); }
+    .state-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; } .state-box { padding:18px; background:var(--card); border:1px solid var(--edge); border-radius:12px; } .state-box .level { font-size:10px; color:var(--faint); text-transform:uppercase; letter-spacing:.13em; } .state-box h3 { font-size:16px; margin:9px 0; } .state-box p { font-size:12px; color:var(--muted); margin:0; } .state-box .label { margin-top:14px; }
+    .reference-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; } .reference { border:1px solid var(--edge); border-radius:9px; background:var(--card); padding:11px 14px; font-size:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; } .reference a { color:var(--txt); } .reference span { color:var(--faint); font-size:11px; flex:none; }
+    .filelist { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; } .filelist a { display:block; color:var(--txt); background:var(--card2); border-radius:9px; padding:11px 13px; border:1px solid var(--edge); font-size:12px; } .filelist a:hover { border-color:var(--teal); text-decoration:none; } .filelist a small { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+    footer { padding-top:45px; margin-top:48px; border-top:1px solid var(--edge); color:var(--faint); font-size:11px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    @media (max-width:1200px) { .frame { grid-template-columns:200px minmax(0,1fr); } .origin-grid { grid-template-columns:repeat(2,1fr); } .gates { grid-template-columns:repeat(4,1fr); } .pipeline { grid-template-columns:repeat(3,1fr); } .pipe:nth-child(3)::after { display:none; } .roadmap { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:800px) { .frame { display:block; } .sidebar { position:static; height:auto; padding:15px 17px; border-right:0; border-bottom:1px solid var(--edge); gap:11px; } .brand { padding:0; } .sidebar .side-label,.sidebar .sidefoot { display:none; } .menu { display:flex; overflow:auto; gap:4px; } .menu a { flex:none; font-size:11px; padding:7px 9px; } .menu a b { display:none; } .topbar { padding:12px 20px; } .content { padding:0 20px 60px; } .hero { padding:40px 0 30px; } .kpis { grid-template-columns:repeat(2,1fr); } .twocol,.thrcol,.fourcol,.origin-grid,.state-grid { grid-template-columns:1fr; } .roadmap { grid-template-columns:repeat(2,1fr); } .reference-grid,.filelist { grid-template-columns:1fr; } .detail { grid-template-columns:1fr; } .gates { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:490px) { .pipeline { grid-template-columns:repeat(2,1fr); } .pipe::after { display:none; } .roadmap { grid-template-columns:1fr; } .kpis { gap:8px; } .kpi { padding:14px; min-height:100px; } .kpi strong { font-size:27px; } .panel { padding:17px; } .crumb { display:none; } .topbar { justify-content:flex-end; } .origin p { min-height:auto; } }
+    @media print { :root,html[data-theme="dark"] { --bg:#fff; --bg2:#fff; --card:#fff; --card2:#f2f6f7; --edge:#d8e0e3; --txt:#182b32; --muted:#394e59; --faint:#667b86; --teal:#166f61; --amber:#8c611b; --orange:#a95340; --sh:none; } body { background:#fff; } .frame { display:block; } .sidebar,.topbar,.no-print { display:none!important; } .content { max-width:none; padding:0 14px; } .hero { padding:20px 0; } .hero h1 { font-size:37px; } section { padding-top:24px; break-inside:avoid; } .panel,.origin,.phase,.state-box { box-shadow:none; break-inside:avoid; } a { color:var(--teal); } .pipeline { grid-template-columns:repeat(3,1fr); } }
+  </style>
+</head>
+<body>
+<div class="frame">
+  <aside class="sidebar" aria-label="페이지 목차">
+    <div class="brand"><div class="brandmark" aria-hidden="true">REE</div><div><strong>RESEARCH<br>EVOLUTION ENGINE</strong><small>ATLAS / V0.1</small></div></div>
+    <div><div class="side-label">Navigation</div><nav class="menu">
+      <a class="active" href="#overview"><b>01</b> Overview</a>
+      <a href="#origins"><b>02</b> Source Systems</a>
+      <a href="#architecture"><b>03</b> Architecture</a>
+      <a href="#gates"><b>04</b> Validation</a>
+      <a href="#benchmark"><b>05</b> R001 Benchmark</a>
+      <a href="#roadmap"><b>06</b> Roadmap</a>
+      <a href="#status"><b>07</b> Actual Status</a>
+      <a href="#documents"><b>08</b> Docs & Sources</a>
+    </nav></div>
+    <div class="sidefoot"><div>DOCUMENTATION SNAPSHOT</div><div>2026.11.06 · Asia/Seoul</div><a href="README.md">README.md ↗</a><a href="RESEARCH_STATE.md">Research state ↗</a></div>
+  </aside>
+  <main class="main">
+    <div class="topbar no-print"><div class="crumb">RESEARCH SYSTEMS / <strong>TECHNICAL ATLAS</strong></div><div class="actions"><button class="ghost" id="themeBtn" aria-label="테마 변경">Light mode</button><button class="ghost" id="printBtn">인쇄 / PDF 저장</button></div></div>
+    <div class="content">
+      <header class="hero" id="overview">
+        <div class="eyebrow">Research system blueprint · 2026 / 11 / 06</div>
+        <h1>From hypotheses<br>to <em>verifiable evidence.</em></h1>
+        <p class="lead">Google Co-Scientist의 가설 경쟁, Sakana의 자동 실험, AlphaEvolve의 프로그램 진화, FutureHouse Robin의 실험 피드백을 결합하는 <strong>로컬 우선 자율 연구 엔진</strong> 설계. 현재는 구현 결과가 아닌 검증 가능한 기술 명세다.</p>
+        <div class="tag-row"><span class="tag warn">DESIGN · PRE-IMPLEMENTATION</span><span class="tag">v0.1 Specification</span><span class="tag">Evidence-first</span><span class="tag">Local-first</span><span class="tag">No live trading</span></div>
+        <div class="kpis" aria-label="설계 범위 요약">
+          <div class="kpi"><strong>06</strong><span>연구 핵심 기능</span></div>
+          <div class="kpi"><strong>07</strong><span>검증 게이트 G0–G6</span></div>
+          <div class="kpi"><strong>01</strong><span>첫 연구 벤치마크 R001</span></div>
+          <div class="kpi"><strong>00</strong><span>현재 대화에서 확인된 완료된 E2E 검증</span></div>
+        </div>
+      </header>
+
+      <section aria-labelledby="purpose-title">
+        <div class="heading"><div><span class="serial">01 / MISSION</span><h2 id="purpose-title">최종 목표와 운영 철학</h2></div></div>
+        <div class="twocol">
+          <div class="panel"><h3>문제 입력에서 근거 있는 판정까지</h3><p>연구 질문을 받아 ① 사실 자료를 수집하고 ② 경쟁하는 반증 가능 가설을 생성하고 ③ 독립 평가기에 의해 실제 코드를 시험하며 ④ 제한된 범위의 결론을 보존하는 <strong>완결형 연구 루프</strong>를 구현한다.</p><div class="callout">LLM의 자기평가나 합의는 과학적 증거가 아니다. <strong>독립 실험·통제된 평가·재현 기록</strong>이 판정의 근거다.</div></div>
+          <div class="panel"><div class="miniheading">Non-goals / 현재 범위 밖</div><ul class="bulletless"><li>Google·Sakana의 비공개 모델을 동일하게 복제했다는 주장</li><li>검증되지 않은 연구 성과나 수익 실현 약속</li><li>시작부터 대규모 Swarm·GPU 클러스터·분산 시스템 구축</li><li>승인 없는 실거래·외부 게시·서버 배포·자격증명 사용</li><li>코드 실행 성공을 곧 과학적 발견으로 취급</li></ul></div>
+        </div>
+      </section>
+
+      <section id="origins" aria-labelledby="origin-title">
+        <div class="heading"><div><span class="serial">02 / REFERENCE SYSTEMS</span><h2 id="origin-title">여섯 연구 계열의 상호보완적 원리</h2></div></div>
+        <p class="sub">아래 항목은 공개된 연구·소프트웨어에 근거한 기능적 영감이다. 통합 아키텍처는 이 프로젝트에서 새로 제안한 설계이며, 원형 시스템을 그대로 재현했다는 뜻이 아니다.</p>
+        <div class="origin-grid">
+          <article class="origin"><div class="no">01</div><h3>Google AI Co-Scientist</h3><p>Supervisor가 생성·반성·순위·근접성·진화·메타리뷰 에이전트를 조율하며 가설을 토론·개선한다.</p><div class="method">→ Hypothesis Arena</div><a href="https://deepmind.google/blog/co-scientist-a-multi-agent-ai-partner-to-accelerate-research/" target="_blank" rel="noopener noreferrer">공식 아키텍처 ↗</a></article>
+          <article class="origin"><div class="no">02</div><h3>Sakana AI Scientist v2</h3><p>Experiment Manager와 점진적 Agentic Tree Search를 통해 계산 실험을 탐색하고 연구 결과를 작성한다.</p><div class="method">→ Experiment Search</div><a href="https://github.com/SakanaAI/AI-Scientist-v2" target="_blank" rel="noopener noreferrer">원본 코드 ↗</a></article>
+          <article class="origin"><div class="no">03</div><h3>Google AlphaEvolve</h3><p>후보 프로그램 DB·LLM 앙상블·프롬프트 샘플러·사용자 정의 평가기로 프로그램 개선을 반복한다.</p><div class="method">→ Evolution + Evaluator</div><a href="https://docs.cloud.google.com/gemini/enterprise/docs/alphaevolve/developer-guide/architecture-and-workflows" target="_blank" rel="noopener noreferrer">공식 아키텍처 ↗</a></article>
+          <article class="origin"><div class="no">04</div><h3>FutureHouse Robin</h3><p>문헌·가설·실험 전략·결과 분석·후속 인사이트를 한 연구 흐름으로 연결한다.</p><div class="method">→ Evidence Feedback Loop</div><a href="https://github.com/Future-House/robin" target="_blank" rel="noopener noreferrer">공개 저장소 ↗</a></article>
+          <article class="origin"><div class="no">05</div><h3>Sakana Agentic Scientist</h3><p>코딩 에이전트, 평가 루브릭, 절제 실험, 증거 맵, 인간 검토를 연결하는 연구 하네스.</p><div class="method">→ Research Governance</div><a href="https://pub.sakana.ai/agentic-scientist/" target="_blank" rel="noopener noreferrer">2026년 연구 ↗</a></article>
+          <article class="origin"><div class="no">06</div><h3>Karpathy autoresearch</h3><p>변경 가능한 코드 범위를 좁히고 평가기를 고정하여 반복 실험의 타당성과 비교 가능성을 높인다.</p><div class="method">→ Minimal Experiment Kernel</div><a href="https://github.com/karpathy/autoresearch" target="_blank" rel="noopener noreferrer">원본 코드 ↗</a></article>
+        </div>
+      </section>
+
+      <section id="architecture" aria-labelledby="architecture-title">
+        <div class="heading"><div><span class="serial">03 / DESIGN BLUEPRINT</span><h2 id="architecture-title">E2E 연구 엔진 아키텍처</h2></div></div>
+        <p class="sub">아래 여섯 단계는 과학적 기능이다. 코드 구현 시에는 Director·Discovery·Hypothesis·Experiment·Evaluation·Evolution·Memory·UI의 8개 논리 패키지로 배치한다. <strong>8개 서버가 필요한 것은 아니다.</strong> 각 단계를 선택해 입력·출력·검증 기준을 확인할 수 있다.</p>
+        <div class="panel plain">
+          <div class="miniheading">Human research contract → measured experiment → evidence-linked verdict</div>
+          <div class="pipeline" id="pipeline" aria-label="연구 모듈 선택">
+            <button class="pipe selected" type="button" data-module="0" aria-pressed="true"><span class="num">01 / SOURCE</span><strong>Discovery</strong><span>문헌·사례·데이터</span></button>
+            <button class="pipe" type="button" data-module="1" aria-pressed="false"><span class="num">02 / THINK</span><strong>Hypothesis</strong><span>가설·비판·선별</span></button>
+            <button class="pipe" type="button" data-module="2" aria-pressed="false"><span class="num">03 / EXECUTE</span><strong>Experiment</strong><span>코드·실험·통제</span></button>
+            <button class="pipe" type="button" data-module="3" aria-pressed="false"><span class="num">04 / JUDGE</span><strong>Evaluation</strong><span>독립 채점·OOS</span></button>
+            <button class="pipe" type="button" data-module="4" aria-pressed="false"><span class="num">05 / IMPROVE</span><strong>Evolution</strong><span>선택·개선·기각</span></button>
+            <button class="pipe" type="button" data-module="5" aria-pressed="false"><span class="num">06 / REMEMBER</span><strong>Memory</strong><span>증거·이력·보고</span></button>
+          </div>
+          <div class="detail" aria-live="polite"><div><div class="hint" id="moduleTag">REFERENCE: ROBIN / CO-SCIENTIST</div><h3 id="moduleTitle">01. Evidence Discovery</h3><p id="moduleIntro">실제 문헌·데이터·사례를 수집하고 출처 및 무결성을 기록한다.</p></div><div><div class="miniheading">I/O CONTRACT & SAFEGUARDS</div><ul id="moduleItems"><li>입력: 승인된 연구 문제·검색 공역</li><li>출력: Source 객체·해시·수집일·라이선스</li><li>검증: 허위 출처·부분 원문·권한 누락 차단</li></ul></div></div>
+          <div class="cutline"></div><div class="flow-legend"><span>연구 Director → 여섯 기능 → 검증 판정</span><span>실패 결과는 Hypothesis와 Discovery에 환류</span><span>종료 조건: 증거가 연결된 결과 + 연구 기록</span></div>
+        </div>
+        <div class="fourcol" style="margin-top:15px">
+          <div class="panel plain"><h3>연구 상태의 8개 핵심 객체</h3><p><strong>ResearchGoal / Source / Hypothesis / Experiment / Run / Evaluation / Decision / Artifact</strong></p><div class="cutline"></div><p>각 Run은 코드 버전, 환경, 시드, 데이터 해시, 평가기 버전, 원시 로그와 연결된다.</p></div>
+          <div class="panel plain"><h3>배포 원칙</h3><p><strong>Mac mini + Python + SQLite + 제한된 Docker + 공급자 API</strong></p><div class="cutline"></div><p>순차 실행을 우선하고, 병렬 실험·클라우드 GPU·다중 도메인은 검증 후 선택적으로 추가한다.</p></div>
+        </div>
+      </section>
+
+      <section id="gates" aria-labelledby="gates-title">
+        <div class="heading"><div><span class="serial">04 / EVIDENCE GOVERNANCE</span><h2 id="gates-title">G0–G6: 독립 검증 게이트</h2></div></div>
+        <p class="sub">가설을 제시한 에이전트가 그 결과를 최종 승인하지 않는다. 실패·불확실성·접근 불능을 정상적인 종료 상태로 취급한다.</p>
+        <div class="gates">
+          <div class="gate"><span>G0</span><strong>Goal</strong><small>지표 · 기준선<br>예산 · 중단조건</small></div>
+          <div class="gate"><span>G1</span><strong>Provenance</strong><small>출처 · 해시<br>권한 · 날짜</small></div>
+          <div class="gate"><span>G2</span><strong>Hypothesis</strong><small>반증가능성<br>대안 · 비판</small></div>
+          <div class="gate"><span>G3</span><strong>Protocol</strong><small>평가기 고정<br>통제 · 데이터 분할</small></div>
+          <div class="gate"><span>G4</span><strong>Execution</strong><small>샌드박스<br>실제 실행 로그</small></div>
+          <div class="gate"><span>G5</span><strong>Validation</strong><small>독립 평가<br>OOS · 불확실성</small></div>
+          <div class="gate"><span>G6</span><strong>Conclusion</strong><small>증거 맵<br>범위 한정 주장</small></div>
+        </div>
+        <div class="twocol">
+          <div class="panel plain"><h3>허용되는 최종 판정</h3><ul class="bulletless"><li><strong>SUPPORTED_WITH_LIMITATIONS</strong> — 테스트된 범위에서 제한적으로 지지</li><li><strong>REFUTED</strong> — 가설을 반박하는 관측</li><li><strong>INCONCLUSIVE</strong> — 근거·검정력이 부족하거나 결과가 불안정</li><li><strong>BLOCKED</strong> — 데이터·권한·안전·실행 조건 미충족</li></ul></div>
+          <div class="panel plain"><h3>자동 방어 테스트 12개</h3><p>재실행 일치, 원본 무결성, 허위 인용, 중복 가설, 평가기 변조, 기준선 누락, 미래정보 누수, 재시작 멱등성, 비용 한도, 재현 메타데이터, 비인가 네트워크·시크릿, 보고서 숫자 근거.</p><div class="callout">12개 테스트는 <strong>계획된 요구사항</strong>이며 현재 이 문서 제작 과정에서 실행된 시스템 테스트가 아니다.</div></div>
+        </div>
+      </section>
+
+      <section id="benchmark" aria-labelledby="benchmark-title">
+        <div class="heading"><div><span class="serial">05 / FIRST BENCHMARK</span><h2 id="benchmark-title">R001 — Market Microstructure Discovery</h2></div><span class="tag warn">NOT RUN</span></div>
+        <div class="panel"><div class="miniheading">Falsifiable research question</div><h3 style="font-size:21px;max-width:940px;letter-spacing:-.025em">가격 괴리는 발생 전에 식별할 수 있는가? 그리고 실제 비용과 독립적인 시간 분할 검증을 통과하는가?</h3><p>승인된 과거 시장 데이터로 사례를 관찰하고, 가격 수렴·호가 불균형·측정 오류라는 경쟁 가설을 비교한다. 실제 거래는 수행하지 않는다.</p><div class="cutline"></div>
+          <div class="thrcol">
+            <div><div class="miniheading">Discovery</div><h3>최대 30개 사례</h3><p>가설을 만드는 초기 관측용. 선별된 30개를 수익성의 통계적 증명으로 사용하지 않는다.</p></div>
+            <div><div class="miniheading">Experiment</div><h3>고정 평가기 + OOS</h3><p>학습·검증·최종 테스트를 시간 순서로 나누고 지연·비용·체결 가능성을 평가한다.</p></div>
+            <div><div class="miniheading">Verdict</div><h3>지지·기각·불확실</h3><p>효과크기와 오차·반례를 보고하고, 경제적 수익을 보장하지 않는다.</p></div>
+          </div>
+          <div class="cutline"></div>
+          <div class="miniheading">Competing hypothesis candidates — not empirical findings</div>
+          <div class="hypo"><span class="label">H1</span><div><h4>일부 유동성 상태에서 괴리는 미래 수렴을 예측한다</h4><p>기각 조건: 비용 반영 후 미지의 기간에서 효과가 사라짐.</p></div></div>
+          <div class="hypo"><span class="label">H2</span><div><h4>호가 불균형은 단순 기준선보다 추가 예측력을 제공한다</h4><p>기각 조건: 동일 조건의 기준선을 이기지 못함.</p></div></div>
+          <div class="hypo"><span class="label">H3</span><div><h4>상당수 괴리는 데이터 시각·체결 가능성의 착시다</h4><p>검증: 시각 정렬, 거래 깊이, 슬리피지, 비동기 호가로 재평가.</p></div></div>
+        </div>
+      </section>
+
+      <section id="roadmap" aria-labelledby="roadmap-title">
+        <div class="heading"><div><span class="serial">06 / ENGINEERING SEQUENCE</span><h2 id="roadmap-title">48시간 목표 → 30일 확장</h2></div></div>
+        <p class="sub">둘 다 마감 압축을 위한 <strong>목표 일정</strong>이며 실현 가능성을 입증한 예측은 아니다. 최초 48시간은 한 번의 진짜 연구 루프를 완주하는 데 집중한다.</p>
+        <div class="roadmap">
+          <div class="phase"><div class="period">0–12 HOURS</div><h3>실행 기반</h3><p>환경 확인 · R001 계약 고정 · 실제 자료 수집 · 기준선 · 초기 가설.</p></div>
+          <div class="phase"><div class="period">12–24 HOURS</div><h3>검증 엔진</h3><p>평가기 고정 · 샌드박스 실행 · Run/Artifact/Decision 기록.</p></div>
+          <div class="phase"><div class="period">24–40 HOURS</div><h3>하네스 강화</h3><p>최초 E2E · 오류 처리 · 12개 방어 테스트 · 재시작 · 비용 제한.</p></div>
+          <div class="phase"><div class="period">40–48 HOURS</div><h3>종결</h3><p>독립 리뷰 · 재현 패키지 · 실패 포함 보고서 · 실행 여부 판정.</p></div>
+        </div>
+        <div class="roadmap" style="margin-top:12px">
+          <div class="phase"><div class="period">WEEK 01</div><h3>Research Core</h3><p>재현 가능한 단일 연구 루프와 운영 안정성.</p></div>
+          <div class="phase"><div class="period">WEEK 02</div><h3>Domain Adapter</h3><p>새 시간 구간 재현 + 두 번째 계산 연구 분야 연결.</p></div>
+          <div class="phase"><div class="period">WEEK 03</div><h3>Evolution</h3><p>가설 토너먼트·후보 DB·한도 있는 트리 탐색.</p></div>
+          <div class="phase"><div class="period">WEEK 04</div><h3>Operations</h3><p>재시작·중단·승인·보고·실험 비교 체계 정비.</p></div>
+        </div>
+      </section>
+
+      <section id="status" aria-labelledby="status-title">
+        <div class="heading"><div><span class="serial">07 / STATE OF THE PROJECT</span><h2 id="status-title">현재 어디까지 왔는가?</h2></div></div>
+        <div class="state-grid">
+          <div class="state-box"><div class="level">DEFINED</div><h3>목표와 연구 철학</h3><p>연구 단계·정직한 판정·대상 시스템·첫 벤치마크를 정의했다.</p><div class="label"><span class="badge draft">문서화 완료</span></div></div>
+          <div class="state-box"><div class="level">DRAFTED</div><h3>아키텍처와 실험 계획</h3><p>6기능·8패키지·검증 게이트·데이터 객체·실행 순서를 제안했다.</p><div class="label"><span class="badge plan">구현 전 검토 필요</span></div></div>
+          <div class="state-box"><div class="level">NOT VERIFIED</div><h3>실제 소프트웨어와 연구 결과</h3><p>작동 코드, 완주한 R001, 테스트 통과, 통계 검증은 확인되지 않았다.</p><div class="label"><span class="badge zero">실행 증거 없음</span></div></div>
+        </div>
+        <div class="panel plain" style="margin-top:14px"><h3>다음 실행 순서</h3><div class="table-wrap" style="box-shadow:none"><table><thead><tr><th>우선</th><th>행동</th><th>산출물 / 증거</th></tr></thead><tbody><tr><td>01</td><td>실제 데이터 접근과 R001 평가 계약 확정</td><td>데이터 manifest · 고정 metric · baseline</td></tr><tr><td>02</td><td>최소 순차 엔진 구현</td><td>실행 코드 · 상태 DB · 안전한 실행기</td></tr><tr><td>03</td><td>실제 E2E 실행 후 독립 검증</td><td>run log · G0–G6 판정 · 결과와 한계</td></tr><tr><td>04</td><td>12개 검증 테스트와 재현 패키지</td><td>test report · reproduction instructions</td></tr><tr><td>05</td><td>검증 후 가설 경쟁·진화·확장</td><td>후보 비교 · 예산 기록 · 두 번째 도메인</td></tr></tbody></table></div></div>
+        <div class="callout"><strong>판정 기준:</strong> 시스템이 가설을 부정하거나 불확실하다고 결론 내려도, 실제 실험과 독립 평가가 완결되어 재현 가능하다면 첫 엔지니어링 목표는 달성한 것이다.</div>
+      </section>
+
+      <section id="documents" aria-labelledby="documents-title">
+        <div class="heading"><div><span class="serial">08 / DOCUMENTATION</span><h2 id="documents-title">기준 문서와 원문 출처</h2></div></div>
+        <div class="twocol">
+          <div class="panel plain"><h3>GitHub용 문서</h3><div class="filelist"><a href="README.md">README.md <small>프로젝트 정의와 현재 상태</small></a><a href="RESEARCH_STATE.md">RESEARCH_STATE.md <small>대화 경과·합의·미검증·미결</small></a><a href="ARCHITECTURE.md">ARCHITECTURE.md <small>원형 비교·6기능·8패키지·보안</small></a><a href="IMPLEMENTATION_PLAN.md">IMPLEMENTATION_PLAN.md <small>R001·48시간·30일·검증 항목</small></a><a href="CODEX_DIRECTIVE.md">CODEX_DIRECTIVE.md <small>개발 에이전트용 구현 명령서</small></a><a href="REFERENCES.md">REFERENCES.md <small>공식 출처·검증 범위·라이선스 주의</small></a></div></div>
+          <div class="panel plain"><h3>공식 연구 / 코드 링크</h3><div class="reference-grid"><div class="reference"><a href="https://docs.cloud.google.com/gemini/enterprise/docs/co-scientist" target="_blank" rel="noopener noreferrer">Google Co-Scientist</a><span>REF-02 ↗</span></div><div class="reference"><a href="https://github.com/SakanaAI/AI-Scientist-v2" target="_blank" rel="noopener noreferrer">Sakana AI Scientist v2</a><span>REF-04 ↗</span></div><div class="reference"><a href="https://docs.cloud.google.com/gemini/enterprise/docs/alphaevolve/developer-guide/architecture-and-workflows" target="_blank" rel="noopener noreferrer">Google AlphaEvolve</a><span>REF-05 ↗</span></div><div class="reference"><a href="https://github.com/Future-House/robin" target="_blank" rel="noopener noreferrer">FutureHouse Robin</a><span>REF-07 ↗</span></div><div class="reference"><a href="https://pub.sakana.ai/agentic-scientist/" target="_blank" rel="noopener noreferrer">Agentic Scientist</a><span>REF-08 ↗</span></div><div class="reference"><a href="https://github.com/karpathy/autoresearch" target="_blank" rel="noopener noreferrer">Karpathy autoresearch</a><span>REF-09 ↗</span></div></div><div class="callout">이 HTML은 백엔드 연결이 없는 <strong>독립 실행형 정적 아키텍처 지도</strong>다. 실제 시스템 상태를 실시간 수집하거나 실험을 실행하지 않는다.</div></div>
+        </div>
+      </section>
+      <footer><span>Research Evolution Engine · Atlas v0.1 · 2026-11-06</span><span>Design documented. Implementation and scientific findings not yet verified.</span></footer>
+    </div>
+  </main>
+</div>
+<script>
+(function () {
+  'use strict';
+  const themeBtn = document.getElementById('themeBtn');
+  themeBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    themeBtn.textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
+  });
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  const modules = [
+    { tag:'REFERENCE: ROBIN / CO-SCIENTIST', title:'01. Evidence Discovery', intro:'실제 문헌·데이터·사례를 수집하고 출처 및 무결성을 기록한다.', points:['입력: 승인된 연구 문제·탐색 범위','출력: Source 객체·원문 식별자·해시·수집일·라이선스','검증: 허위 인용·부분 원문·접근 권한 문제를 명시'] },
+    { tag:'REFERENCE: GOOGLE CO-SCIENTIST', title:'02. Hypothesis Arena', intro:'반증 가능한 가설을 생성하고 상대 가설·반례·중복을 체계적으로 비교한다.', points:['입력: 근거 있는 Source와 이전 실패 이력','출력: 대안 가설·반증 조건·리뷰·우선순위','주의: Elo·모델 리뷰의 순위는 경험적 증거가 아님'] },
+    { tag:'REFERENCE: SAKANA AI SCIENTIST', title:'03. Experiment Engine', intro:'연구 질문을 실행 가능한 코드와 사전 정의된 비교 실험으로 변환한다.', points:['입력: 승인된 Hypothesis·동결된 프로토콜','출력: 실제 Run·코드·환경·원시 로그·실험 아티팩트','제약: 샌드박스·리소스 상한·승인 외 외부 쓰기 금지'] },
+    { tag:'REFERENCE: ALPHAEVOLVE / AUTORESEARCH', title:'04. Independent Evaluation', intro:'모델이 주장한 결과가 아니라 원시 측정치로 외부에서 판정한다.', points:['입력: Run의 측정 출력·변경 불가 채점 계약','출력: baseline 비교·OOS·오차·G0–G6 판정','금지: 테스트 세트 누수·평가기 변조·근거 없는 성과 보고'] },
+    { tag:'REFERENCE: ALPHAEVOLVE / SAKANA', title:'05. Bounded Evolution', intro:'타당한 후보를 보관하고 제한된 예산 안에서 변형·재시험한다.', points:['입력: 채점 결과·오류 이력·남은 실행 예산','출력: 상위 후보·반례 반영·다음 실험 우선순위','제약: 최종 홀드아웃에 대한 반복 최적화 금지'] },
+    { tag:'REFERENCE: ROBIN / AGENTIC SCIENTIST', title:'06. Evidence & Research Memory', intro:'결과와 실패를 연결된 연구 기록 및 사람이 확인 가능한 보고서로 보존한다.', points:['입력: 출처·가설·실험·평가·판정 기록','출력: JSONL/SQLite·재현 패키지·증거 기반 보고서','요건: 재시작 안전성, 주장→측정치 추적, 출판 승인'] }
+  ];
+  const buttons = Array.from(document.querySelectorAll('[data-module]'));
+  const tag = document.getElementById('moduleTag');
+  const title = document.getElementById('moduleTitle');
+  const intro = document.getElementById('moduleIntro');
+  const items = document.getElementById('moduleItems');
+  buttons.forEach(button => button.addEventListener('click', () => {
+    const m = modules[Number(button.getAttribute('data-module'))];
+    if (!m) return;
+    buttons.forEach(b => { b.classList.toggle('selected', b === button); b.setAttribute('aria-pressed', b === button ? 'true' : 'false'); });
+    tag.textContent = m.tag; title.textContent = m.title; intro.textContent = m.intro;
+    items.replaceChildren(...m.points.map(t => { const li = document.createElement('li'); li.textContent = t; return li; }));
+  }));
+  const links = Array.from(document.querySelectorAll('.menu a'));
+  if ('IntersectionObserver' in window) {
+    const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (!e.isIntersecting) return; const href = '#' + e.target.id; links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === href)); });
+    }, { rootMargin:'-15% 0px -70% 0px', threshold:0 });
+    targets.forEach(t => observer.observe(t));
+  }
+})();
+</script>
+</body>
+</html>

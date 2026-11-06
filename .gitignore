@@ -1,0 +1,30 @@
+# Local secrets and environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local machines and generated artifacts
+.DS_Store
+.idea/
+.vscode/
+artifacts/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
+
+# Locally collected raw data and private experiment outputs
+data/raw/
+research/**/runs/
+research/**/experiments/
+
+# Keep generated/publicly approved reports deliberately in version control
